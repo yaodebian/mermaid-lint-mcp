@@ -2,81 +2,132 @@
 
 **中文版本** | [English](README.md)
 
-一个模型上下文协议 (MCP) 服务器，专门用于验证 Mermaid 图表是否能够正常渲染。这个工具帮助大型语言模型 (LLM) 快速验证 Mermaid 图表的语法正确性。
+一个强大的 Mermaid 图表验证工具，同时支持命令行和 MCP 服务器功能。专为开发者、技术文档编写者和 AI 助手设计，让 Mermaid 图表验证变得简单高效。
 
-## 功能特性
+## 🚀 快速开始
 
-- **渲染验证**: 检测 Mermaid 图表是否能够正常渲染
-- **多种图表类型**: 支持流程图、时序图、类图、状态图、饼图等
-- **简单易用**: 提供简洁的验证结果，包含是否有效和错误信息
-- **超时控制**: 支持设置验证超时时间，避免长时间等待
-- **MCP 集成**: 与兼容 MCP 的 AI 助手和工具无缝集成
-- **高性能**: 通过本地 Mermaid 库和浏览器复用优化，实现快速验证
+### 立即安装使用
 
-## 支持的图表类型
+```bash
+# 验证 Mermaid 文件
+npx mermaid-lint-mcp lint diagram.mmd
 
-- 流程图 (`flowchart`, `graph`)
-- 时序图 (`sequenceDiagram`)
-- 类图 (`classDiagram`)
-- 状态图 (`stateDiagram`)
-- 饼图 (`pie`)
-- 甘特图 (`gantt`)
-- 用户旅程图 (`journey`)
-- Git 图 (`gitgraph`)
-- 实体关系图 (`erDiagram`)
-- 以及更多...
+# 直接验证 Mermaid 代码
+npx mermaid-lint-mcp lint --code "graph TD; A-->B"
 
-## 安装
+# 启动 MCP 服务器供 AI 助手使用
+npx mermaid-lint-mcp server
 
-### 前置要求
+# 获取帮助
+npx mermaid-lint-mcp --help
+```
 
-- Node.js 18 或更高版本
-- npm 或 pnpm
+无需安装！首次使用时会自动下载工具。
 
-### 从 npm 安装
+## 🎯 使用场景
 
+### 开发者
+- **提交前验证**：确保代码库中所有 Mermaid 图表都有效
+- **CI/CD 集成**：将图表验证添加到构建流水线
+- **文档质量**：发布前捕获语法错误
+
+### 技术文档编写者
+- **内容验证**：确保图表在发布前能正确渲染
+- **批量处理**：一次验证多个图表文件
+- **错误调试**：获得清晰的语法错误信息
+
+### AI 助手
+- **实时验证**：即时验证生成的图表
+- **MCP 集成**：与 Claude、ChatGPT 等 AI 工具无缝集成
+- **自动化工作流**：让 AI 能够自我验证图表输出
+
+## 📋 功能特性
+
+- ✅ **快速验证**：通过浏览器复用和本地库优化速度
+- ✅ **多种格式**：支持所有 Mermaid 图表类型
+- ✅ **双重接口**：一个包同时提供 CLI 工具和 MCP 服务器
+- ✅ **详细错误**：提供行号和建议的清晰错误信息
+- ✅ **超时控制**：可配置的验证超时时间
+- ✅ **零配置**：开箱即用，默认设置合理
+
+## 🛠️ 安装选项
+
+### 选项 1：使用 npx（推荐）
+无需安装 - 直接使用 `npx mermaid-lint-mcp`。
+
+### 选项 2：全局安装
 ```bash
 npm install -g mermaid-lint-mcp
+# 然后使用：mermaid-lint-mcp
 ```
 
-### 从源码构建
-
+### 选项 3：项目本地安装
 ```bash
-git clone https://github.com/dongmu/mermaid-lint-mcp.git
-cd mermaid-lint-mcp
-pnpm install
-pnpm run build
+npm install mermaid-lint-mcp
+# 然后使用：npx mermaid-lint-mcp
 ```
 
-## 使用方法
+## 📖 使用指南
 
-### 作为 MCP 服务器
+### CLI 命令
 
-主要用途是作为 MCP 服务器，可以与 AI 助手和其他 MCP 客户端集成。
+#### 验证图表
+```bash
+# 验证文件
+npx mermaid-lint-mcp lint diagram.mmd
+npx mermaid-lint-mcp diagram.mmd  # 'lint' 是默认命令
 
-#### 配置
+# 验证代码字符串
+npx mermaid-lint-mcp lint --code "graph TD; A-->B"
 
-将服务器添加到您的 MCP 客户端配置中：
+# 自定义超时时间（5秒）
+npx mermaid-lint-mcp lint --timeout 5000 diagram.mmd
+
+# 使用文件选项验证
+npx mermaid-lint-mcp lint --file diagram.mmd
+```
+
+#### 启动 MCP 服务器
+```bash
+# 启动服务器供 AI 助手集成
+npx mermaid-lint-mcp server
+```
+
+#### 获取帮助
+```bash
+npx mermaid-lint-mcp --help     # 显示所有命令
+npx mermaid-lint-mcp --version  # 显示版本
+```
+
+### MCP 服务器集成
+
+#### Claude Desktop 配置
+在 `claude_desktop_config.json` 中添加：
 
 ```json
 {
   "mcpServers": {
     "mermaid-lint": {
-      "command": "node",
-      "args": ["/path/to/mermaid-lint-mcp/dist/index.js"],
-      "env": {}
+      "command": "npx",
+      "args": ["mermaid-lint-mcp", "server"]
     }
   }
 }
 ```
 
-#### 可用工具
+#### 其他 MCP 客户端
+```json
+{
+  "mcpServers": {
+    "mermaid-lint": {
+      "command": "node",
+      "args": ["/path/to/global/node_modules/mermaid-lint-mcp/dist/cli.js", "server"]
+    }
+  }
+}
+```
 
-1. **`validate_mermaid_diagram`** - 验证 Mermaid 图表
-   - 参数: `code` (字符串), `timeout` (数字，可选)
-   - 返回: 验证结果，包含是否有效和错误信息
-
-### 编程方式使用
+### 编程使用
 
 ```typescript
 import { MermaidLinter } from 'mermaid-lint-mcp';
@@ -87,27 +138,66 @@ const linter = new MermaidLinter();
 const result = await linter.validateDiagram(`
   flowchart TD
     A[开始] --> B{决策}
-    B -->|是| C[结束]
-    B -->|否| A
-`);
+    B -->|是| C[成功]
+    B -->|否| D[重试]
+    D --> A
+`, { timeout: 10000 });
 
-console.log(result.isValid);
-console.log(result.error);
-console.log(result.diagramType);
+console.log('有效:', result.isValid);
+console.log('类型:', result.diagramType);
+if (!result.isValid) {
+  console.log('错误:', result.error);
+}
+
+// 别忘了清理资源
+await linter.cleanup();
 ```
 
-## 验证选项
+## 📊 支持的图表类型
 
-验证函数接受各种选项来自定义验证：
+| 类型 | 语法 | 示例用途 |
+|------|------|----------|
+| 流程图 | `flowchart TD` | 决策树、流程 |
+| 时序图 | `sequenceDiagram` | API 交互、工作流 |
+| 类图 | `classDiagram` | 对象关系 |
+| 状态图 | `stateDiagram-v2` | 状态机 |
+| ER 图 | `erDiagram` | 数据库模式 |
+| 甘特图 | `gantt` | 项目时间线 |
+| 饼图 | `pie` | 数据可视化 |
+| 用户旅程 | `journey` | 用户体验 |
+| Git 图 | `gitgraph` | 版本控制流程 |
+| ... | `...` | ... |
 
+## 🔧 配置
+
+### 验证选项
 ```typescript
 interface ValidationOptions {
-  timeout?: number;  // 验证超时时间（毫秒，默认：5000）
+  timeout?: number;  // 超时时间（毫秒，默认：5000）
 }
 ```
 
-## 示例输出
+### 环境变量
+```bash
+# 设置默认超时时间
+export MERMAID_TIMEOUT=10000
 
+# 启用调试日志
+export DEBUG=mermaid-lint-mcp
+```
+
+## 📈 性能
+
+为生产使用优化：
+
+- **首次验证**：约 700ms（包括浏览器启动）
+- **后续验证**：每次 10-25ms
+- **内存高效**：适当清理防止内存泄漏
+- **浏览器复用**：跨验证共享浏览器实例
+
+## 🔍 示例输出
+
+### 有效图表
 ```json
 {
   "isValid": true,
@@ -116,90 +206,47 @@ interface ValidationOptions {
 }
 ```
 
-对于无效图表：
-
+### 无效图表
 ```json
 {
   "isValid": false,
-  "error": "Parse error on line 2: Unexpected token",
-  "diagramType": null
+  "error": "Parse error on line 8: ...> C E --> F[End ---------------------^ Expecting 'SQE', 'DOUBLECIRCLEEND', 'PE', '-)', 'STADIUMEND', 'SUBROUTINEEND', 'PIPE', 'CYLINDEREND', 'DIAMOND_STOP', 'TAGEND', 'TRAPEND', 'INVTRAPEND', 'UNICODE_TEXT', 'TEXT', 'TAGSTART', got '1'",
+  "diagramType": "flowchart"
 }
 ```
 
-## 性能优化
-
-此工具包含多项性能优化，实现快速验证：
-
-- **优化的 Puppeteer 配置**: 使用无头 Chrome 和性能优化的启动参数
-- **本地 Mermaid 库**: 从本地 node_modules 加载 Mermaid 而非 CDN，加载更快
-- **浏览器复用**: 在多次验证中复用浏览器实例，避免启动开销
-- **正确清理**: 确保所有浏览器资源被正确清理，防止内存泄漏
-
-典型性能表现：
-- 首次验证：约 700ms（包含浏览器启动）
-- 后续验证：每次 10-25ms
-
-## 开发
-
-### 设置开发环境
-
+### CLI 输出
 ```bash
-git clone https://github.com/dongmu/mermaid-lint-mcp.git
-cd mermaid-lint-mcp
-pnpm install
+$ npx mermaid-lint-mcp lint diagram.mmd
+📁 读取文件：diagram.mmd
+🔍 验证 Mermaid 图表...
+✅ 图表有效！
+📊 图表类型：flowchart
 ```
 
-### 构建项目
+## 🚨 常见问题与解决方案
 
-```bash
-pnpm run build
-```
+### 问题："命令未找到"
+**解决方案**：使用 `npx mermaid-lint-mcp` 而不是 `mermaid-lint-mcp`
 
-### 运行测试
+### 问题：验证超时
+**解决方案**：使用 `--timeout 10000` 增加超时时间
 
-```bash
-pnpm test
-```
+### 问题：权限被拒绝
+**解决方案**：使用适当权限运行或使用 `npx`
 
-### 开发模式
+## 📝 许可证
 
-```bash
-pnpm run dev
-```
+MIT 许可证 - 详见 [LICENSE](LICENSE) 文件。
 
-## 贡献
+## 🙋‍♂️ 支持
 
-欢迎贡献！请阅读我们的贡献指南：
+- 📖 [文档](https://github.com/yaodebian/mermaid-lint-mcp)
+- 🐛 [报告问题](https://github.com/yaodebian/mermaid-lint-mcp/issues)
+- 💬 [讨论](https://github.com/yaodebian/mermaid-lint-mcp/discussions)
 
-1. Fork 这个仓库
-2. 创建您的功能分支 (`git checkout -b feature/amazing-feature`)
-3. 提交您的更改 (`git commit -m 'Add some amazing feature'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 打开一个 Pull Request
+## 🔗 相关工具
 
-## 许可证
-
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
-
-## 更新日志
-
-### v1.0.0
-- 初始版本
-- 基本的 Mermaid 图表渲染验证
-- 支持多种图表类型
-- MCP 服务器集成
-- 超时控制
-- 性能优化
-
-## 支持
-
-如果您遇到任何问题或有疑问，请：
-
-1. 查看 [Issues](https://github.com/yaodebian/mermaid-lint-mcp/issues) 页面
-2. 创建新的 issue 描述您的问题
-3. 提供尽可能详细的信息，包括错误消息和示例代码
-
-## 相关项目
-
-- [Mermaid](https://mermaid.js.org/) - 官方 Mermaid 库
-- [Model Context Protocol](https://modelcontextprotocol.io/) - MCP 规范
+- [Mermaid](https://mermaid.js.org/) - 用文本创建图表
+- [Mermaid Live Editor](https://mermaid.live/) - 在线图表编辑器
+- [Model Context Protocol](https://modelcontextprotocol.io/) - AI 集成标准

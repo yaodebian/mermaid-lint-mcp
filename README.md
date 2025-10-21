@@ -2,79 +2,130 @@
 
 [中文版本](README_zh.md) | **English**
 
-A Model Context Protocol (MCP) server for validating Mermaid diagrams. This tool helps Large Language Models (LLMs) quickly validate the syntax correctness of Mermaid diagrams by checking if they can be properly rendered.
+A powerful tool for validating Mermaid diagrams with both CLI and MCP server capabilities. Perfect for developers, technical writers, and AI assistants who work with Mermaid diagrams.
 
-## Features
+## 🚀 Quick Start
 
-- **Rendering Validation**: Detects whether Mermaid diagrams can be properly rendered
-- **Multiple Diagram Types**: Supports flowcharts, sequence diagrams, class diagrams, state diagrams, pie charts, and more
-- **Simple to Use**: Provides clean validation results with validity status and error information
-- **Timeout Control**: Supports setting validation timeout to avoid long waits
-- **MCP Integration**: Seamlessly integrates with MCP-compatible AI assistants and tools
-- **Fast Performance**: Optimized for quick validation with local Mermaid library and browser reuse
+### Install and Use Immediately
 
-## Supported Diagram Types
+```bash
+# Validate a Mermaid file
+npx mermaid-lint-mcp lint diagram.mmd
 
-- Flowcharts (`flowchart`, `graph`)
-- Sequence Diagrams (`sequenceDiagram`)
-- Class Diagrams (`classDiagram`)
-- State Diagrams (`stateDiagram`)
-- Pie Charts (`pie`)
-- Gantt Charts (`gantt`)
-- User Journey (`journey`)
-- Git Graphs (`gitgraph`)
-- Entity Relationship Diagrams (`erDiagram`)
-- And more...
+# Validate Mermaid code directly
+npx mermaid-lint-mcp lint --code "graph TD; A-->B"
 
-## Installation
+# Start MCP server for AI assistants
+npx mermaid-lint-mcp server
 
-### Prerequisites
+# Get help
+npx mermaid-lint-mcp --help
+```
 
-- Node.js 18 or higher
-- npm or pnpm
+No installation required! The tool will be downloaded automatically on first use.
 
-### Install from npm
+## 🎯 Use Cases
 
+### For Developers
+- **Pre-commit validation**: Ensure all Mermaid diagrams in your codebase are valid
+- **CI/CD integration**: Add diagram validation to your build pipeline
+- **Documentation quality**: Catch syntax errors before publishing docs
+
+### For Technical Writers
+- **Content validation**: Verify diagrams render correctly before publication
+- **Batch processing**: Validate multiple diagram files at once
+- **Error debugging**: Get clear error messages for syntax issues
+
+### For AI Assistants
+- **Real-time validation**: Validate generated diagrams instantly
+- **MCP integration**: Seamless integration with Claude, ChatGPT, and other AI tools
+- **Automated workflows**: Enable AI to self-validate diagram outputs
+
+## 📋 Features
+
+- ✅ **Fast Validation**: Optimized for speed with browser reuse and local libraries
+- ✅ **Multiple Formats**: Support for all Mermaid diagram types
+- ✅ **Dual Interface**: Both CLI tool and MCP server in one package
+- ✅ **Error Details**: Clear error messages with line numbers and suggestions
+- ✅ **Timeout Control**: Configurable validation timeouts
+- ✅ **Zero Config**: Works out of the box with sensible defaults
+
+## 🛠️ Installation Options
+
+### Option 1: Use with npx (Recommended)
+No installation needed - just use `npx mermaid-lint-mcp` directly.
+
+### Option 2: Global Installation
 ```bash
 npm install -g mermaid-lint-mcp
+# Then use: mermaid-lint-mcp
 ```
 
-### Build from Source
-
+### Option 3: Local Project Installation
 ```bash
-git clone https://github.com/dongmu/mermaid-lint-mcp.git
-cd mermaid-lint-mcp
-pnpm install
-pnpm run build
+npm install mermaid-lint-mcp
+# Then use: npx mermaid-lint-mcp
 ```
 
-## Usage
+## 📖 Usage Guide
 
-### As MCP Server
+### CLI Commands
 
-The primary use case is as an MCP server that can be integrated with AI assistants and other MCP clients.
+#### Validate Diagrams
+```bash
+# Validate a file
+npx mermaid-lint-mcp lint diagram.mmd
+npx mermaid-lint-mcp diagram.mmd  # 'lint' is default
 
-#### Configuration
+# Validate code string
+npx mermaid-lint-mcp lint --code "graph TD; A-->B"
 
-Add the server to your MCP client configuration:
+# With custom timeout (5 seconds)
+npx mermaid-lint-mcp lint --timeout 5000 diagram.mmd
+
+# Validate with file option
+npx mermaid-lint-mcp lint --file diagram.mmd
+```
+
+#### Start MCP Server
+```bash
+# Start server for AI assistant integration
+npx mermaid-lint-mcp server
+```
+
+#### Get Help
+```bash
+npx mermaid-lint-mcp --help     # Show all commands
+npx mermaid-lint-mcp --version  # Show version
+```
+
+### MCP Server Integration
+
+#### For Claude Desktop
+Add to your `claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "mermaid-lint": {
-      "command": "node",
-      "args": ["/path/to/mermaid-lint-mcp/dist/index.js"],
-      "env": {}
+      "command": "npx",
+      "args": ["mermaid-lint-mcp", "server"]
     }
   }
 }
 ```
 
-#### Available Tools
-
-1. **`validate_mermaid_diagram`** - Validate Mermaid diagrams
-   - Parameters: `code` (string), `timeout` (number, optional)
-   - Returns: Validation result with validity status and error information
+#### For Other MCP Clients
+```json
+{
+  "mcpServers": {
+    "mermaid-lint": {
+      "command": "node",
+      "args": ["/path/to/global/node_modules/mermaid-lint-mcp/dist/cli.js", "server"]
+    }
+  }
+}
+```
 
 ### Programmatic Usage
 
@@ -87,27 +138,66 @@ const linter = new MermaidLinter();
 const result = await linter.validateDiagram(`
   flowchart TD
     A[Start] --> B{Decision}
-    B -->|Yes| C[End]
-    B -->|No| A
-`);
+    B -->|Yes| C[Success]
+    B -->|No| D[Retry]
+    D --> A
+`, { timeout: 10000 });
 
-console.log(result.isValid);
-console.log(result.error);
-console.log(result.diagramType);
+console.log('Valid:', result.isValid);
+console.log('Type:', result.diagramType);
+if (!result.isValid) {
+  console.log('Error:', result.error);
+}
+
+// Don't forget to cleanup
+await linter.cleanup();
 ```
 
-## Validation Options
+## 📊 Supported Diagram Types
 
-The validation function accepts various options to customize validation:
+| Type | Syntax | Example |
+|------|--------|---------|
+| Flowchart | `flowchart TD` | Decision trees, processes |
+| Sequence | `sequenceDiagram` | API interactions, workflows |
+| Class | `classDiagram` | Object relationships |
+| State | `stateDiagram-v2` | State machines |
+| ER | `erDiagram` | Database schemas |
+| Gantt | `gantt` | Project timelines |
+| Pie | `pie` | Data visualization |
+| Journey | `journey` | User experiences |
+| Git Graph | `gitgraph` | Version control flows |
+| ... | `...` | ... |
 
+## 🔧 Configuration
+
+### Validation Options
 ```typescript
 interface ValidationOptions {
-  timeout?: number;  // Validation timeout in milliseconds (default: 5000)
+  timeout?: number;  // Timeout in milliseconds (default: 5000)
 }
 ```
 
-## Example Output
+### Environment Variables
+```bash
+# Set default timeout
+export MERMAID_TIMEOUT=10000
 
+# Enable debug logging
+export DEBUG=mermaid-lint-mcp
+```
+
+## 📈 Performance
+
+Optimized for production use:
+
+- **First validation**: ~700ms (includes browser startup)
+- **Subsequent validations**: ~10-25ms each
+- **Memory efficient**: Proper cleanup prevents memory leaks
+- **Browser reuse**: Shared browser instance across validations
+
+## 🔍 Example Outputs
+
+### Valid Diagram
 ```json
 {
   "isValid": true,
@@ -116,90 +206,47 @@ interface ValidationOptions {
 }
 ```
 
-For invalid diagrams:
-
+### Invalid Diagram
 ```json
 {
   "isValid": false,
-  "error": "Parse error on line 2: Unexpected token",
-  "diagramType": null
+  "error": "Parse error on line 8: ...> C E --> F[End ---------------------^ Expecting 'SQE', 'DOUBLECIRCLEEND', 'PE', '-)', 'STADIUMEND', 'SUBROUTINEEND', 'PIPE', 'CYLINDEREND', 'DIAMOND_STOP', 'TAGEND', 'TRAPEND', 'INVTRAPEND', 'UNICODE_TEXT', 'TEXT', 'TAGSTART', got '1'",
+  "diagramType": "flowchart"
 }
 ```
 
-## Performance Optimizations
-
-This tool includes several performance optimizations for fast validation:
-
-- **Optimized Puppeteer Configuration**: Uses headless Chrome with performance-focused launch arguments
-- **Local Mermaid Library**: Loads Mermaid from local node_modules instead of CDN for faster loading
-- **Browser Reuse**: Reuses browser instances across multiple validations to avoid startup overhead
-- **Proper Cleanup**: Ensures all browser resources are properly cleaned up to prevent memory leaks
-
-Typical performance:
-- First validation: ~700ms (includes browser startup)
-- Subsequent validations: ~10-25ms each
-
-## Development
-
-### Setup Development Environment
-
+### CLI Output
 ```bash
-git clone https://github.com/dongmu/mermaid-lint-mcp.git
-cd mermaid-lint-mcp
-pnpm install
+$ npx mermaid-lint-mcp lint diagram.mmd
+📁 Reading file: diagram.mmd
+🔍 Validating Mermaid diagram...
+✅ Diagram is valid!
+📊 Diagram type: flowchart
 ```
 
-### Build Project
+## 🚨 Common Issues & Solutions
 
-```bash
-pnpm run build
-```
+### Issue: "Command not found"
+**Solution**: Use `npx mermaid-lint-mcp` instead of `mermaid-lint-mcp`
 
-### Run Tests
+### Issue: Validation timeout
+**Solution**: Increase timeout with `--timeout 10000`
 
-```bash
-pnpm test
-```
+### Issue: Permission denied
+**Solution**: Run with appropriate permissions or use `npx`
 
-### Development Mode
+## 📝 License
 
-```bash
-pnpm run dev
-```
+MIT License - see [LICENSE](LICENSE) file for details.
 
-## Contributing
+## 🙋‍♂️ Support
 
-Contributions are welcome! Please read our contributing guidelines:
+- 📖 [Documentation](https://github.com/yaodebian/mermaid-lint-mcp)
+- 🐛 [Report Issues](https://github.com/yaodebian/mermaid-lint-mcp/issues)
+- 💬 [Discussions](https://github.com/yaodebian/mermaid-lint-mcp/discussions)
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+## 🔗 Related Tools
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Changelog
-
-### v1.0.0
-- Initial release
-- Basic Mermaid diagram rendering validation
-- Support for multiple diagram types
-- MCP server integration
-- Timeout control
-- Performance optimizations
-
-## Support
-
-If you encounter any issues or have questions:
-
-1. Check the [Issues](https://github.com/yaodebian/mermaid-lint-mcp/issues) page
-2. Create a new issue describing your problem
-3. Provide as much detail as possible, including error messages and example code
-
-## Related Projects
-
-- [Mermaid](https://mermaid.js.org/) - Official Mermaid library
-- [Model Context Protocol](https://modelcontextprotocol.io/) - MCP specification
+- [Mermaid](https://mermaid.js.org/) - Create diagrams with text
+- [Mermaid Live Editor](https://mermaid.live/) - Online diagram editor
+- [Model Context Protocol](https://modelcontextprotocol.io/) - AI integration standard
