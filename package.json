@@ -6,11 +6,12 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "mermaid-lint-mcp": "dist/index.js"
+    "mermaid-lint-mcp": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
+    "dev:cli": "tsx src/cli.ts",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
