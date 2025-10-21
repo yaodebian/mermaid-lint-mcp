@@ -33,6 +33,30 @@ const ValidateDiagramArgsSchema = z.object({
   }).optional().describe('Validation options'),
 });
 
+// JSON Schema for MCP inputSchema
+const ValidateDiagramInputSchema = {
+  type: 'object',
+  properties: {
+    code: {
+      type: 'string',
+      description: 'Mermaid diagram code to validate'
+    },
+    options: {
+      type: 'object',
+      properties: {
+        timeout: {
+          type: 'number',
+          description: 'Validation timeout in milliseconds (default: 5000)'
+        }
+      },
+      additionalProperties: false,
+      description: 'Validation options'
+    }
+  },
+  required: ['code'],
+  additionalProperties: false
+};
+
 // List available tools
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
@@ -40,7 +64,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: 'validate_mermaid_diagram',
         description: 'Validate if a Mermaid diagram can be rendered successfully',
-        inputSchema: ValidateDiagramArgsSchema,
+        inputSchema: ValidateDiagramInputSchema,
       },
     ],
   };
