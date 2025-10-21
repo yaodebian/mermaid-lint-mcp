@@ -27,7 +27,7 @@
     "syntax-check",
     "model-context-protocol"
   ],
-  "author": "dongmu",
+  "author": "yaodebian",
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.19.1",
