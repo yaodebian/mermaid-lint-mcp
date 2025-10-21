@@ -9,7 +9,8 @@
     "mermaid-lint-mcp": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc",
     "dev": "tsx src/index.ts",
     "dev:cli": "tsx src/cli.ts",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
