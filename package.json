@@ -1,6 +1,6 @@
 {
   "name": "mermaid-lint-mcp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "MCP server for Mermaid diagram syntax checking and linting",
   "type": "module",
   "main": "dist/index.js",
@@ -10,7 +10,7 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "npm run clean && tsc",
+    "build": "npm run clean && tsc && chmod +x dist/cli.js",
     "dev": "tsx src/index.ts",
     "dev:cli": "tsx src/cli.ts",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
