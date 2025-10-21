@@ -1,6 +1,6 @@
 {
   "name": "mermaid-lint-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server for Mermaid diagram syntax checking and linting",
   "type": "module",
   "main": "dist/index.js",
