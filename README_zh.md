@@ -33,12 +33,11 @@ npx mermaid-lint-mcp --help
 
 ### 技术文档编写者
 - **内容验证**：确保图表在发布前能正确渲染
-- **批量处理**：一次验证多个图表文件
 - **错误调试**：获得清晰的语法错误信息
 
 ### AI 助手
 - **实时验证**：即时验证生成的图表
-- **MCP 集成**：与 Claude、ChatGPT 等 AI 工具无缝集成
+- **MCP 集成**：与 Claude Code、Cursor、Trae 等 AI 工具无缝集成
 - **自动化工作流**：让 AI 能够自我验证图表输出
 
 ## 📋 功能特性
@@ -48,7 +47,7 @@ npx mermaid-lint-mcp --help
 - ✅ **双重接口**：一个包同时提供 CLI 工具和 MCP 服务器
 - ✅ **详细错误**：提供行号和建议的清晰错误信息
 - ✅ **超时控制**：可配置的验证超时时间
-- ✅ **零配置**：开箱即用，默认设置合理
+- ✅ **零配置**：开箱即用
 
 ## 🛠️ 安装选项
 
@@ -127,32 +126,6 @@ npx mermaid-lint-mcp --version  # 显示版本
 }
 ```
 
-### 编程使用
-
-```typescript
-import { MermaidLinter } from 'mermaid-lint-mcp';
-
-const linter = new MermaidLinter();
-
-// 验证图表
-const result = await linter.validateDiagram(`
-  flowchart TD
-    A[开始] --> B{决策}
-    B -->|是| C[成功]
-    B -->|否| D[重试]
-    D --> A
-`, { timeout: 10000 });
-
-console.log('有效:', result.isValid);
-console.log('类型:', result.diagramType);
-if (!result.isValid) {
-  console.log('错误:', result.error);
-}
-
-// 别忘了清理资源
-await linter.cleanup();
-```
-
 ## 📊 支持的图表类型
 
 | 类型 | 语法 | 示例用途 |
@@ -186,15 +159,6 @@ export MERMAID_TIMEOUT=10000
 export DEBUG=mermaid-lint-mcp
 ```
 
-## 📈 性能
-
-为生产使用优化：
-
-- **首次验证**：约 700ms（包括浏览器启动）
-- **后续验证**：每次 10-25ms
-- **内存高效**：适当清理防止内存泄漏
-- **浏览器复用**：跨验证共享浏览器实例
-
 ## 🔍 示例输出
 
 ### 有效图表
@@ -202,7 +166,7 @@ export DEBUG=mermaid-lint-mcp
 {
   "isValid": true,
   "error": null,
-  "diagramType": "flowchart-v2"
+  "diagramType": "flowchart"
 }
 ```
 
@@ -217,11 +181,10 @@ export DEBUG=mermaid-lint-mcp
 
 ### CLI 输出
 ```bash
-$ npx mermaid-lint-mcp lint diagram.mmd
-📁 读取文件：diagram.mmd
-🔍 验证 Mermaid 图表...
-✅ 图表有效！
-📊 图表类型：flowchart
+$ npx mermaid-lint-mcp lint --code "graph TD; A-->B"
+🔍 Validating Mermaid diagram...
+✅ Diagram is valid!
+📊 Diagram type: flowchart
 ```
 
 ## 🚨 常见问题与解决方案

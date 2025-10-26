@@ -33,12 +33,11 @@ No installation required! The tool will be downloaded automatically on first use
 
 ### For Technical Writers
 - **Content validation**: Verify diagrams render correctly before publication
-- **Batch processing**: Validate multiple diagram files at once
 - **Error debugging**: Get clear error messages for syntax issues
 
 ### For AI Assistants
 - **Real-time validation**: Validate generated diagrams instantly
-- **MCP integration**: Seamless integration with Claude, ChatGPT, and other AI tools
+- **MCP integration**: Seamless integration with Claude Code, Cursor, Trae, and other AI tools
 - **Automated workflows**: Enable AI to self-validate diagram outputs
 
 ## 📋 Features
@@ -48,7 +47,7 @@ No installation required! The tool will be downloaded automatically on first use
 - ✅ **Dual Interface**: Both CLI tool and MCP server in one package
 - ✅ **Error Details**: Clear error messages with line numbers and suggestions
 - ✅ **Timeout Control**: Configurable validation timeouts
-- ✅ **Zero Config**: Works out of the box with sensible defaults
+- ✅ **Zero Config**: Works out of the box
 
 ## 🛠️ Installation Options
 
@@ -127,32 +126,6 @@ Add to your `claude_desktop_config.json`:
 }
 ```
 
-### Programmatic Usage
-
-```typescript
-import { MermaidLinter } from 'mermaid-lint-mcp';
-
-const linter = new MermaidLinter();
-
-// Validate a diagram
-const result = await linter.validateDiagram(`
-  flowchart TD
-    A[Start] --> B{Decision}
-    B -->|Yes| C[Success]
-    B -->|No| D[Retry]
-    D --> A
-`, { timeout: 10000 });
-
-console.log('Valid:', result.isValid);
-console.log('Type:', result.diagramType);
-if (!result.isValid) {
-  console.log('Error:', result.error);
-}
-
-// Don't forget to cleanup
-await linter.cleanup();
-```
-
 ## 📊 Supported Diagram Types
 
 | Type | Syntax | Example |
@@ -186,15 +159,6 @@ export MERMAID_TIMEOUT=10000
 export DEBUG=mermaid-lint-mcp
 ```
 
-## 📈 Performance
-
-Optimized for production use:
-
-- **First validation**: ~700ms (includes browser startup)
-- **Subsequent validations**: ~10-25ms each
-- **Memory efficient**: Proper cleanup prevents memory leaks
-- **Browser reuse**: Shared browser instance across validations
-
 ## 🔍 Example Outputs
 
 ### Valid Diagram
@@ -202,7 +166,7 @@ Optimized for production use:
 {
   "isValid": true,
   "error": null,
-  "diagramType": "flowchart-v2"
+  "diagramType": "flowchart"
 }
 ```
 
@@ -217,8 +181,7 @@ Optimized for production use:
 
 ### CLI Output
 ```bash
-$ npx mermaid-lint-mcp lint diagram.mmd
-📁 Reading file: diagram.mmd
+$ npx mermaid-lint-mcp lint --code "graph TD; A-->B"
 🔍 Validating Mermaid diagram...
 ✅ Diagram is valid!
 📊 Diagram type: flowchart
