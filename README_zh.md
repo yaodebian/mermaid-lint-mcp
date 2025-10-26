@@ -114,17 +114,7 @@ npx mermaid-lint-mcp --version  # 显示版本
 }
 ```
 
-#### 其他 MCP 客户端
-```json
-{
-  "mcpServers": {
-    "mermaid-lint": {
-      "command": "node",
-      "args": ["/path/to/global/node_modules/mermaid-lint-mcp/dist/cli.js", "server"]
-    }
-  }
-}
-```
+#### 其他 MCP 客户端基本与上面一致，具体查阅官方文档
 
 ## 📊 支持的图表类型
 

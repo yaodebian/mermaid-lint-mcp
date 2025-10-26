@@ -114,17 +114,7 @@ Add to your `claude_desktop_config.json`:
 }
 ```
 
-#### For Other MCP Clients
-```json
-{
-  "mcpServers": {
-    "mermaid-lint": {
-      "command": "node",
-      "args": ["/path/to/global/node_modules/mermaid-lint-mcp/dist/cli.js", "server"]
-    }
-  }
-}
-```
+#### For Other MCP Clients, the setup is similar to above, please refer to the official documentation
 
 ## 📊 Supported Diagram Types
 
