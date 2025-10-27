@@ -9,6 +9,7 @@ interface CliOptions {
   file?: string;
   code?: string;
   timeout?: number;
+  browserPath?: string;
   help?: boolean;
   version?: boolean;
 }
@@ -40,6 +41,10 @@ function parseArgs(args: string[]): CliOptions {
       case '-t':
       case '--timeout':
         options.timeout = parseInt(args[++i], 10);
+        break;
+      case '-b':
+      case '--browser-path':
+        options.browserPath = args[++i];
         break;
       case '-h':
       case '--help':
@@ -76,6 +81,7 @@ Lint Options:
   -f, --file <path>     Path to mermaid file to validate
   -c, --code <code>     Mermaid code string to validate
   -t, --timeout <ms>    Validation timeout in milliseconds (default: 5000)
+  -b, --browser-path <path>  Path to custom browser executable for puppeteer
 
 Global Options:
   -h, --help           Show this help message
@@ -85,6 +91,7 @@ Examples:
   npx mermaid-lint-mcp lint diagram.mmd
   npx mermaid-lint-mcp lint --file diagram.mmd
   npx mermaid-lint-mcp lint --code "graph TD; A-->B"
+  npx mermaid-lint-mcp lint --browser-path /path/to/chrome
   npx mermaid-lint-mcp server
   npx mermaid-lint-mcp diagram.mmd  (defaults to lint command)
 `);
@@ -100,13 +107,13 @@ function showVersion(): void {
   }
 }
 
-async function validateMermaidCode(code: string, timeout?: number): Promise<void> {
-  const linter = new MermaidLinter();
+async function validateMermaidCode(code: string, options: { timeout?: number; browserPath?: string } = {}): Promise<void> {
+  const linter = new MermaidLinter(options.browserPath);
   
   try {
     console.log('🔍 Validating Mermaid diagram...');
     
-    const result = await linter.validateDiagram(code, { timeout });
+    const result = await linter.validateDiagram(code, options);
     
     if (result.isValid) {
       console.log('✅ Diagram is valid!');
@@ -175,7 +182,10 @@ async function main(): Promise<void> {
       process.exit(1);
     }
 
-    await validateMermaidCode(mermaidCode, options.timeout);
+    await validateMermaidCode(mermaidCode, { 
+      timeout: options.timeout, 
+      browserPath: options.browserPath 
+    });
     return;
   }
   

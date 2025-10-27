@@ -10,15 +10,18 @@ export class MermaidLinter {
   private browser: any = null;
   private page: any = null;
   private initialized = false;
+  private browserPath?: string;
 
-  constructor() {}
+  constructor(browserPath?: string) {
+    this.browserPath = browserPath;
+  }
 
   private async initializeBrowser(): Promise<void> {
     if (this.initialized) return;
 
     try {
-      // Launch headless browser with optimized settings for testing
-      this.browser = await puppeteer.launch({
+      // Prepare launch options with optimized settings for testing
+      const launchOptions: any = {
         headless: true,
         args: [
           '--no-sandbox',  // Disable Chrome's sandbox for faster startup
@@ -30,7 +33,15 @@ export class MermaidLinter {
           '--single-process',  // Run Chrome in single process mode for testing
           '--disable-gpu'  // Disable GPU hardware acceleration
         ]
-      });
+      };
+
+      // Add custom browser path if provided
+      if (this.browserPath) {
+        launchOptions.executablePath = this.browserPath;
+      }
+
+      // Launch headless browser
+      this.browser = await puppeteer.launch(launchOptions);
       
       this.page = await this.browser.newPage();
       
@@ -67,6 +78,18 @@ export class MermaidLinter {
    */
   async validateDiagram(code: string, options: ValidationOptions = {}): Promise<MermaidValidationResult> {
     const timeout = options.timeout || 5000;
+    
+    // Update browser path if provided in options
+    if (options.browserPath && options.browserPath !== this.browserPath) {
+      this.browserPath = options.browserPath;
+      // Reset initialization to use new browser path
+      this.initialized = false;
+      if (this.browser) {
+        await this.browser.close();
+        this.browser = null;
+        this.page = null;
+      }
+    }
     
     // Handle empty code early
     if (!code || code.trim() === '') {
