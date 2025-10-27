@@ -91,9 +91,16 @@ Examples:
   npx mermaid-lint-mcp lint diagram.mmd
   npx mermaid-lint-mcp lint --file diagram.mmd
   npx mermaid-lint-mcp lint --code "graph TD; A-->B"
-  npx mermaid-lint-mcp lint --browser-path /path/to/chrome
+  npx mermaid-lint-mcp lint --browser-path "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+  npx mermaid-lint-mcp lint --code "graph TD; A-->B" -b "/usr/bin/chromium-browser"
   npx mermaid-lint-mcp server
   npx mermaid-lint-mcp diagram.mmd  (defaults to lint command)
+
+Browser Setup:
+  If you encounter browser-related errors, use --browser-path to specify your browser:
+  macOS:   --browser-path "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+  Linux:   --browser-path "/usr/bin/chromium-browser"
+  Windows: --browser-path "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
 `);
 }
 

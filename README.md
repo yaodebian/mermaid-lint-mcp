@@ -133,10 +133,39 @@ Add to your `claude_desktop_config.json`:
 
 ## 🔧 Configuration
 
+### Browser Setup
+
+This tool uses Puppeteer to validate Mermaid diagrams, which requires a browser. You have several options:
+
+#### Option 1: Use System Browser (Recommended)
+```bash
+# macOS with Chrome
+npx mermaid-lint-mcp --browser-path "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --code "graph TD; A-->B"
+
+# Linux with Chromium
+npx mermaid-lint-mcp --browser-path "/usr/bin/chromium-browser" --code "graph TD; A-->B"
+
+# Windows with Chrome
+npx mermaid-lint-mcp --browser-path "C:\Program Files\Google\Chrome\Application\chrome.exe" --code "graph TD; A-->B"
+```
+
+#### Option 2: Install Puppeteer's Chromium
+```bash
+# Install Chromium for Puppeteer
+npx puppeteer browsers install chrome
+
+# Then use normally
+npx mermaid-lint-mcp --code "graph TD; A-->B"
+```
+
+#### Option 3: Skip Download and Use Browser Path
+If you have network issues during installation, the package is configured to skip Chromium download automatically. Just use the `--browser-path` option.
+
 ### Validation Options
 ```typescript
 interface ValidationOptions {
-  timeout?: number;  // Timeout in milliseconds (default: 5000)
+  timeout?: number;     // Timeout in milliseconds (default: 5000)
+  browserPath?: string; // Path to custom browser executable
 }
 ```
 

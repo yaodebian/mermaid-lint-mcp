@@ -19,7 +19,8 @@
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "prepare": "npm run build",
-    "prepublishOnly": "npm run test && npm run build"
+    "prepublishOnly": "npm run test && npm run build",
+    "postinstall": "node -e \"console.log('\\n📋 Important: This package requires a browser for Mermaid validation.\\n\\n🔧 Options:\\n1. Use --browser-path to specify your Chrome/Chromium path\\n2. Install browsers: npx puppeteer browsers install chrome\\n3. Use system Chrome: --browser-path \\\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\\\" (macOS)\\n')\""
   },
   "keywords": [
     "mcp",
@@ -48,6 +49,11 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.7.1",
     "typescript": "^5.4.2"
+  },
+  "config": {
+    "puppeteer": {
+      "skipDownload": "true"
+    }
   },
   "files": [
     "dist",

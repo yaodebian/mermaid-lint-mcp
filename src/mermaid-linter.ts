@@ -69,7 +69,24 @@ export class MermaidLinter {
       
       this.initialized = true;
     } catch (error) {
-      throw new Error(`Failed to initialize browser: ${error}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      // Provide helpful error messages for common browser issues
+      if (errorMessage.includes('Could not find Chrome') || errorMessage.includes('Browser was not found')) {
+        throw new Error(`Browser not found. Please try one of these solutions:
+
+1. Use --browser-path to specify your browser:
+   macOS:   --browser-path "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+   Linux:   --browser-path "/usr/bin/chromium-browser"
+   Windows: --browser-path "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+
+2. Install Puppeteer's Chromium:
+   npx puppeteer browsers install chrome
+
+Original error: ${errorMessage}`);
+      }
+      
+      throw new Error(`Failed to initialize browser: ${errorMessage}`);
     }
   }
 
