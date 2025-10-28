@@ -42,12 +42,13 @@ No installation required! The tool will be downloaded automatically on first use
 
 ## 📋 Features
 
-- ✅ **Fast Validation**: Optimized for speed with browser reuse and local libraries
+- ✅ **Fast Validation**: Native Mermaid API - no browser overhead
+- ✅ **Zero Dependencies**: No Chrome/Chromium installation required
 - ✅ **Multiple Formats**: Support for all Mermaid diagram types
 - ✅ **Dual Interface**: Both CLI tool and MCP server in one package
 - ✅ **Error Details**: Clear error messages with line numbers and suggestions
 - ✅ **Timeout Control**: Configurable validation timeouts
-- ✅ **Zero Config**: Works out of the box
+- ✅ **Network Friendly**: No additional downloads or browser dependencies
 
 ## 🛠️ Installation Options
 
@@ -136,9 +137,16 @@ Add to your `claude_desktop_config.json`:
 ### Validation Options
 ```typescript
 interface ValidationOptions {
-  timeout?: number;  // Timeout in milliseconds (default: 5000)
+  timeout?: number;     // Timeout in milliseconds (default: 5000)
 }
 ```
+
+### Performance Benefits
+This tool now uses the native Mermaid API for validation, which provides:
+- ⚡ **Faster validation** - No browser startup overhead
+- 🔧 **Zero dependencies** - No need for Chrome/Chromium installation
+- 🌐 **Network-friendly** - No additional downloads required
+- 💻 **Lower resource usage** - Runs directly in Node.js
 
 ### Environment Variables
 ```bash

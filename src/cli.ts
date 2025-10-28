@@ -85,8 +85,11 @@ Examples:
   npx mermaid-lint-mcp lint diagram.mmd
   npx mermaid-lint-mcp lint --file diagram.mmd
   npx mermaid-lint-mcp lint --code "graph TD; A-->B"
+  npx mermaid-lint-mcp lint --timeout 10000
   npx mermaid-lint-mcp server
   npx mermaid-lint-mcp diagram.mmd  (defaults to lint command)
+
+Note: This tool now uses native Mermaid API for validation - no browser required!
 `);
 }
 
@@ -100,13 +103,13 @@ function showVersion(): void {
   }
 }
 
-async function validateMermaidCode(code: string, timeout?: number): Promise<void> {
+async function validateMermaidCode(code: string, options: { timeout?: number } = {}): Promise<void> {
   const linter = new MermaidLinter();
   
   try {
     console.log('🔍 Validating Mermaid diagram...');
     
-    const result = await linter.validateDiagram(code, { timeout });
+    const result = await linter.validateDiagram(code, options);
     
     if (result.isValid) {
       console.log('✅ Diagram is valid!');
@@ -175,7 +178,9 @@ async function main(): Promise<void> {
       process.exit(1);
     }
 
-    await validateMermaidCode(mermaidCode, options.timeout);
+    await validateMermaidCode(mermaidCode, { 
+      timeout: options.timeout
+    });
     return;
   }
   

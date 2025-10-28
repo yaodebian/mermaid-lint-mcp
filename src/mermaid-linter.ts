@@ -1,73 +1,33 @@
 import { MermaidValidationResult, ValidationOptions } from './types.js';
-import puppeteer from 'puppeteer';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import mermaid from 'mermaid';
 
 export class MermaidLinter {
-  private browser: any = null;
-  private page: any = null;
   private initialized = false;
 
   constructor() {}
 
-  private async initializeBrowser(): Promise<void> {
+  private async initializeMermaid(): Promise<void> {
     if (this.initialized) return;
 
     try {
-      // Launch headless browser with optimized settings for testing
-      this.browser = await puppeteer.launch({
-        headless: true,
-        args: [
-          '--no-sandbox',  // Disable Chrome's sandbox for faster startup
-          '--disable-setuid-sandbox',  // Disable setuid sandbox to avoid permission issues
-          '--disable-dev-shm-usage',  // Use /tmp instead of /dev/shm to avoid memory issues
-          '--disable-accelerated-2d-canvas',  // Disable hardware acceleration for 2D canvas
-          '--no-first-run',  // Skip first-run setup to speed up initialization
-          '--no-zygote',  // Disable zygote process for faster startup in testing
-          '--single-process',  // Run Chrome in single process mode for testing
-          '--disable-gpu'  // Disable GPU hardware acceleration
-        ]
-      });
-      
-      this.page = await this.browser.newPage();
-      
-      // Use local mermaid instead of CDN for faster loading
-      try {
-        // Try to find mermaid in node_modules
-        const mermaidPath = join(__dirname, '../node_modules/mermaid/dist/mermaid.min.js');
-        await this.page.addScriptTag({
-          path: mermaidPath
-        });
-      } catch (error) {
-        // Fallback to CDN if local file not found
-        await this.page.addScriptTag({
-          url: 'https://cdn.jsdelivr.net/npm/mermaid@11.12.0/dist/mermaid.min.js'
-        });
-      }
-      
-      await this.page.evaluate(() => {
-        (window as any).mermaid.initialize({
-          startOnLoad: false,
-          securityLevel: 'loose',
-          theme: 'default'
-        });
+      // 初始化 Mermaid（关闭浏览器相关功能）
+      mermaid.initialize({
+        startOnLoad: false,
+        logLevel: 'error',
+        securityLevel: 'loose',
+        theme: 'default'
       });
       
       this.initialized = true;
     } catch (error) {
-      throw new Error(`Failed to initialize browser: ${error}`);
+      throw new Error(`Failed to initialize mermaid: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
   /**
-   * Validate if a Mermaid diagram can be rendered successfully
+   * Validate if a Mermaid diagram syntax is correct
    */
   async validateDiagram(code: string, options: ValidationOptions = {}): Promise<MermaidValidationResult> {
-    const timeout = options.timeout || 5000;
-    
     // Handle empty code early
     if (!code || code.trim() === '') {
       return {
@@ -77,14 +37,15 @@ export class MermaidLinter {
     }
     
     try {
-      await this.initializeBrowser();
+      await this.initializeMermaid();
       
-      // Set up timeout
+      // 设置超时处理
+      const timeout = options.timeout || 5000;
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error('Validation timeout')), timeout);
       });
       
-      // Validate the diagram
+      // 执行验证
       const validationPromise = this.performValidation(code);
       
       return await Promise.race([validationPromise, timeoutPromise]);
@@ -98,53 +59,36 @@ export class MermaidLinter {
 
   private async performValidation(code: string): Promise<MermaidValidationResult> {
     try {
-      const result = await this.page.evaluate((diagramCode: string) => {
-        return new Promise((resolve) => {
-          try { 
-            // Get diagram type
-            const diagramType = (window as any).mermaid.detectType(diagramCode);
-            
-            // Create a temporary div for rendering
-            const tempDiv = document.createElement('div');
-            tempDiv.id = 'mermaid-temp-' + Date.now();
-            tempDiv.style.visibility = 'hidden';
-            tempDiv.style.position = 'absolute';
-            tempDiv.style.top = '-9999px';
-            document.body.appendChild(tempDiv);
-            
-            // Try to actually render the diagram
-            (window as any).mermaid.render(tempDiv.id + '-svg', diagramCode)
-              .then((result: any) => {
-                // Rendering successful
-                document.body.removeChild(tempDiv);
-                resolve({
-                  isValid: true,
-                  error: null,
-                  diagramType: diagramType || 'unknown'
-                });
-              })
-              .catch((renderError: any) => {
-                // Rendering failed - this is where we catch real syntax errors
-                document.body.removeChild(tempDiv);
-                resolve({
-                  isValid: false,
-                  error: renderError.message || 'Rendering error',
-                  diagramType: diagramType || 'unknown'
-                });
-              });
-              
-          } catch (parseError: any) {
-            // Parse error - immediate syntax error
-            resolve({
-              isValid: false,
-              error: parseError.message || 'Parse error',
-              diagramType: 'unknown'
-            });
-          }
-        });
-      }, code);
-      
-      return result;
+      // 方法1：快速类型检测
+      let diagramType: string;
+      try {
+        diagramType = mermaid.detectType(code);
+      } catch (error) {
+        return {
+          isValid: false,
+          error: `Failed to detect diagram type: ${error instanceof Error ? error.message : String(error)}`,
+        };
+      }
+
+      // 方法2：完整语法解析
+      try {
+        const result = await mermaid.parse(code, { suppressErrors: false });
+        
+        return {
+          isValid: true,
+          error: null,
+          diagramType: diagramType || 'unknown'
+        };
+      } catch (parseError) {
+        // 如果解析失败，返回详细的错误信息
+        const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
+        
+        return {
+          isValid: false,
+          error: `Syntax error: ${errorMessage}`,
+          diagramType: diagramType || 'unknown'
+        };
+      }
     } catch (error) {
       return {
         isValid: false,
@@ -153,23 +97,23 @@ export class MermaidLinter {
     }
   }
 
-  async cleanup(): Promise<void> {
-    if (this.browser) {
-      try {
-        // Close all pages first
-        const pages = await this.browser.pages();
-        await Promise.all(pages.map((page: any) => page.close()));
-        
-        // Then close the browser
-        await this.browser.close();
-      } catch (error) {
-        // Ignore cleanup errors
-        console.warn('Browser cleanup warning:', error);
-      } finally {
-        this.browser = null;
-        this.page = null;
-        this.initialized = false;
-      }
+  /**
+   * Get the type of a Mermaid diagram
+   */
+  async getDiagramType(code: string): Promise<string> {
+    try {
+      await this.initializeMermaid();
+      return mermaid.detectType(code);
+    } catch (error) {
+      return 'unknown';
     }
+  }
+
+  /**
+   * Clean up resources (now just a placeholder since we don't use browser)
+   */
+  async cleanup(): Promise<void> {
+    // No cleanup needed for native Mermaid API
+    this.initialized = false;
   }
 }
