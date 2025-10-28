@@ -9,7 +9,6 @@ interface CliOptions {
   file?: string;
   code?: string;
   timeout?: number;
-  browserPath?: string;
   help?: boolean;
   version?: boolean;
 }
@@ -41,10 +40,6 @@ function parseArgs(args: string[]): CliOptions {
       case '-t':
       case '--timeout':
         options.timeout = parseInt(args[++i], 10);
-        break;
-      case '-b':
-      case '--browser-path':
-        options.browserPath = args[++i];
         break;
       case '-h':
       case '--help':
@@ -81,7 +76,6 @@ Lint Options:
   -f, --file <path>     Path to mermaid file to validate
   -c, --code <code>     Mermaid code string to validate
   -t, --timeout <ms>    Validation timeout in milliseconds (default: 5000)
-  -b, --browser-path <path>  Path to custom browser executable for puppeteer
 
 Global Options:
   -h, --help           Show this help message
@@ -91,16 +85,11 @@ Examples:
   npx mermaid-lint-mcp lint diagram.mmd
   npx mermaid-lint-mcp lint --file diagram.mmd
   npx mermaid-lint-mcp lint --code "graph TD; A-->B"
-  npx mermaid-lint-mcp lint --browser-path "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-  npx mermaid-lint-mcp lint --code "graph TD; A-->B" -b "/usr/bin/chromium-browser"
+  npx mermaid-lint-mcp lint --timeout 10000
   npx mermaid-lint-mcp server
   npx mermaid-lint-mcp diagram.mmd  (defaults to lint command)
 
-Browser Setup:
-  If you encounter browser-related errors, use --browser-path to specify your browser:
-  macOS:   --browser-path "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-  Linux:   --browser-path "/usr/bin/chromium-browser"
-  Windows: --browser-path "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+Note: This tool now uses native Mermaid API for validation - no browser required!
 `);
 }
 
@@ -114,8 +103,8 @@ function showVersion(): void {
   }
 }
 
-async function validateMermaidCode(code: string, options: { timeout?: number; browserPath?: string } = {}): Promise<void> {
-  const linter = new MermaidLinter(options.browserPath);
+async function validateMermaidCode(code: string, options: { timeout?: number } = {}): Promise<void> {
+  const linter = new MermaidLinter();
   
   try {
     console.log('🔍 Validating Mermaid diagram...');
@@ -190,8 +179,7 @@ async function main(): Promise<void> {
     }
 
     await validateMermaidCode(mermaidCode, { 
-      timeout: options.timeout, 
-      browserPath: options.browserPath 
+      timeout: options.timeout
     });
     return;
   }

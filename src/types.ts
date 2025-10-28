@@ -19,6 +19,4 @@ export interface MermaidValidationResult {
 export interface ValidationOptions {
   /** Timeout for validation in milliseconds (default: 5000) */
   timeout?: number;
-  /** Path to custom browser executable for puppeteer */
-  browserPath?: string;
 }
